@@ -1,0 +1,1230 @@
+STANDAR OPERASIONAL PROSEDUR (SOP)
+PERBAIKAN DAN PERAWATAN MESIN PRODUKSI
+AI4I Predictive Maintenance System
+
+=================================================================
+DOKUMEN INFORMASI
+=================================================================
+
+Nomor Dokumen: SOP-PM-2024-001
+Versi: 2.0
+Tanggal Terbit: 3 Desember 2024
+Departemen: Maintenance & Engineering
+Status: Aktif
+
+=================================================================
+DAFTAR ISI
+=================================================================
+
+BAB 1: PENGENALAN SISTEM
+BAB 2: KLASIFIKASI MESIN
+BAB 3: PARAMETER SENSOR DAN MONITORING
+BAB 4: JENIS-JENIS KEGAGALAN (FAILURE MODES)
+BAB 5: PROSEDUR PERBAIKAN TOOL WEAR FAILURE (TWF)
+BAB 6: PROSEDUR PERBAIKAN HEAT DISSIPATION FAILURE (HDF)
+BAB 7: PROSEDUR PERBAIKAN POWER FAILURE (PWF)
+BAB 8: PROSEDUR PERBAIKAN OVERSTRAIN FAILURE (OSF)
+BAB 9: PROSEDUR PERBAIKAN RANDOM FAILURES (RNF)
+BAB 10: PERAWATAN PREVENTIF
+BAB 11: KESELAMATAN KERJA
+BAB 12: TROUBLESHOOTING GUIDE
+
+=================================================================
+BAB 1: PENGENALAN SISTEM
+=================================================================
+
+1.1 TENTANG SISTEM PREDICTIVE MAINTENANCE
+
+Sistem AI4I Predictive Maintenance adalah sistem monitoring dan prediksi kegagalan mesin berbasis kecerdasan buatan yang dirancang untuk:
+- Mendeteksi anomali pada mesin produksi
+- Memprediksi kegagalan sebelum terjadi
+- Memberikan rekomendasi perbaikan
+- Mengoptimalkan jadwal maintenance
+
+1.2 KOMPONEN SISTEM
+
+Sistem terdiri dari:
+- Sensor monitoring (suhu, kecepatan, torsi, tool wear)
+- AI prediction engine
+- Dashboard monitoring real-time
+- Alert system
+- Knowledge base (dokumen SOP ini)
+
+=================================================================
+BAB 2: KLASIFIKASI MESIN
+=================================================================
+
+2.1 TIPE MESIN BERDASARKAN KUALITAS
+
+Sistem mengklasifikasikan mesin menjadi 3 kategori:
+
+A. TIPE L (Low Quality)
+   - Karakteristik: Mesin entry-level, toleransi lebih rendah
+   - Product ID: L + 5 digit angka (contoh: L47181)
+   - Frekuensi maintenance: Setiap 2 minggu
+   - Risiko failure: Tinggi (perlu monitoring ketat)
+   - Aplikasi: Produksi non-critical, volume rendah
+
+B. TIPE M (Medium Quality)
+   - Karakteristik: Mesin standar industri, balanced performance
+   - Product ID: M + 5 digit angka (contoh: M14860)
+   - Frekuensi maintenance: Setiap 1 bulan
+   - Risiko failure: Sedang
+   - Aplikasi: Produksi standar, volume menengah
+
+C. TIPE H (High Quality)
+   - Karakteristik: Mesin premium, toleransi tinggi, presisi maksimal
+   - Product ID: H + 5 digit angka (contoh: H39952)
+   - Frekuensi maintenance: Setiap 2 bulan
+   - Risiko failure: Rendah
+   - Aplikasi: Produksi critical, high precision, volume tinggi
+
+2.2 IDENTIFIKASI MESIN
+
+Setiap mesin memiliki:
+- UID (Unique Identifier): Nomor unik untuk tracking
+- Product ID: Kode identifikasi produk
+- Lokasi: Posisi fisik di lantai produksi
+- Tanggal instalasi
+- Riwayat maintenance
+
+=================================================================
+BAB 3: PARAMETER SENSOR DAN MONITORING
+=================================================================
+
+3.1 AIR TEMPERATURE (Suhu Udara Sekitar)
+
+Deskripsi: Suhu udara di sekitar mesin
+Satuan: Kelvin (K)
+Range Normal: 295K - 304K (22°C - 31°C)
+Threshold Warning: >302K
+Threshold Critical: >304K
+
+Interpretasi:
+- <295K: Lingkungan terlalu dingin, risiko kondensasi
+- 295-304K: Normal
+- >304K: Overheat environment, perlu cooling tambahan
+
+3.2 PROCESS TEMPERATURE (Suhu Proses)
+
+Deskripsi: Suhu yang dihasilkan selama proses machining
+Satuan: Kelvin (K)
+Range Normal: 305K - 313K (32°C - 40°C)
+Threshold Warning: >311K
+Threshold Critical: >313K
+
+Interpretasi:
+- <305K: Proses tidak optimal, perlu pemanasan
+- 305-313K: Normal
+- >313K: Overheating, risiko Heat Dissipation Failure
+
+3.3 ROTATIONAL SPEED (Kecepatan Rotasi)
+
+Deskripsi: Kecepatan putaran spindle/motor
+Satuan: RPM (Rotations Per Minute)
+Range Normal: 1200 - 2900 RPM
+Threshold Warning: <1300 RPM atau >2800 RPM
+Threshold Critical: <1200 RPM atau >2900 RPM
+
+Interpretasi:
+- <1200 RPM: Underspeed, risiko Power Failure
+- 1200-2900 RPM: Normal
+- >2900 RPM: Overspeed, risiko Overstrain Failure
+
+3.4 TORQUE (Torsi)
+
+Deskripsi: Gaya putar yang dihasilkan motor
+Satuan: Nm (Newton-meter)
+Range Normal: 20 - 70 Nm
+Threshold Warning: <25 Nm atau >65 Nm
+Threshold Critical: <20 Nm atau >70 Nm
+
+Interpretasi:
+- <20 Nm: Torsi rendah, risiko Power Failure
+- 20-70 Nm: Normal
+- >70 Nm: Torsi berlebih, risiko Overstrain Failure
+
+3.5 TOOL WEAR (Keausan Tool)
+
+Deskripsi: Waktu penggunaan tool/cutting edge
+Satuan: Menit
+Range Normal: 0 - 200 menit
+Threshold Warning: >180 menit
+Threshold Critical: >200 menit
+
+Interpretasi:
+- 0-180 menit: Normal
+- 180-200 menit: Perlu persiapan penggantian
+- >200 menit: Wajib ganti, risiko Tool Wear Failure
+
+=================================================================
+BAB 4: JENIS-JENIS KEGAGALAN (FAILURE MODES)
+=================================================================
+
+4.1 TOOL WEAR FAILURE (TWF)
+
+Definisi: Kegagalan akibat tool/cutting edge yang aus
+Penyebab: Tool wear time melebihi 200-220 menit
+Indikator:
+- Tool wear >200 menit
+- Kualitas hasil produksi menurun
+- Suara tidak normal saat cutting
+- Getaran meningkat
+
+Dampak:
+- Kualitas produk buruk
+- Kerusakan workpiece
+- Beban motor meningkat
+- Risiko kerusakan spindle
+
+4.2 HEAT DISSIPATION FAILURE (HDF)
+
+Definisi: Kegagalan sistem pendinginan/pembuangan panas
+Penyebab: Process temp - Air temp > 8.6K dan rotational speed < 1380 RPM
+Indikator:
+- Process temperature tinggi (>311K)
+- Cooling system tidak efektif
+- Kipas pendingin tidak optimal
+- Coolant level rendah
+
+Dampak:
+- Thermal expansion komponen
+- Deformasi material
+- Kerusakan bearing
+- Shutdown otomatis
+
+4.3 POWER FAILURE (PWF)
+
+Definisi: Kegagalan daya/tenaga mesin
+Penyebab: Torque × Rotational Speed < 3500 W atau > 9000 W
+Indikator:
+- Daya output tidak stabil
+- Motor overload atau underload
+- Voltage fluctuation
+- Current spike
+
+Dampak:
+- Mesin mati mendadak
+- Kerusakan motor controller
+- Workpiece rusak
+- Production downtime
+
+4.4 OVERSTRAIN FAILURE (OSF)
+
+Definisi: Kegagalan akibat beban berlebih
+Penyebab: Tool wear × Torque > 11000 Nm·min (Tipe L), >12000 (M), >13000 (H)
+Indikator:
+- Torque melebihi kapasitas
+- Tool wear tinggi + beban berat
+- Getaran ekstrem
+- Suara abnormal
+
+Dampak:
+- Patah tool
+- Kerusakan spindle
+- Deformasi struktur mesin
+- Kecelakaan kerja
+
+4.5 RANDOM FAILURES (RNF)
+
+Definisi: Kegagalan acak yang tidak terprediksi
+Penyebab: Faktor eksternal, komponen defect, human error
+Probabilitas: 0.1% per proses
+Indikator:
+- Tidak ada pola jelas
+- Sudden failure
+- Komponen elektronik rusak
+- Sensor malfunction
+
+Dampak:
+- Unpredictable downtime
+- Sulit troubleshooting
+- Perlu investigasi mendalam
+
+=================================================================
+BAB 5: PROSEDUR PERBAIKAN TOOL WEAR FAILURE (TWF)
+=================================================================
+
+5.1 IDENTIFIKASI MASALAH
+
+Gejala:
+✓ Tool wear time >200 menit
+✓ Kualitas cutting menurun
+✓ Surface finish buruk
+✓ Dimensional accuracy meleset
+✓ Suara grinding/squealing
+
+5.2 LANGKAH PERBAIKAN
+
+STEP 1: SHUTDOWN MESIN
+⚠️ SAFETY FIRST!
+1. Tekan tombol Emergency Stop
+2. Tunggu spindle berhenti total (30 detik)
+3. Matikan power supply utama
+4. Lock-out/Tag-out (LOTO) power switch
+5. Tunggu 5 menit untuk cooling down
+
+STEP 2: INSPEKSI VISUAL
+1. Buka cover spindle dengan hati-hati
+2. Periksa kondisi tool/cutting edge:
+   - Aus normal: edge tumpul merata
+   - Aus abnormal: chipping, cracking, deformasi
+3. Periksa tool holder: tidak goyang, tidak retak
+4. Periksa collet/chuck: tidak aus, grip masih kuat
+5. Dokumentasikan kondisi dengan foto
+
+STEP 3: PERSIAPAN PENGGANTIAN TOOL
+1. Siapkan tool baru (pastikan spesifikasi sama)
+2. Siapkan tool kit: wrench, torque wrench, cleaning brush
+3. Siapkan coolant/lubricant
+4. Siapkan micrometer untuk verifikasi dimensi
+5. Gunakan APD: safety glasses, gloves
+
+STEP 4: LEPAS TOOL LAMA
+1. Bersihkan area kerja dari chip/debris
+2. Spray WD-40 pada collet (jika macet)
+3. Gunakan wrench untuk buka collet nut
+   - Torque: sesuai manual (biasanya 50-80 Nm)
+4. Tarik tool keluar dengan hati-hati
+5. Simpan tool lama untuk analisis
+
+STEP 5: BERSIHKAN SPINDLE
+1. Gunakan compressed air untuk blow chip
+2. Bersihkan taper spindle dengan kain bersih
+3. Periksa taper: tidak boleh ada goresan/burr
+4. Bersihkan collet dengan solvent
+5. Keringkan dengan air gun
+
+STEP 6: PASANG TOOL BARU
+1. Periksa tool baru: tidak ada defect
+2. Ukur diameter tool dengan micrometer
+3. Oleskan thin film lubricant pada shank
+4. Masukkan tool ke collet dengan alignment tepat
+5. Kencangkan collet nut dengan torque wrench
+   - Tipe L: 50 Nm
+   - Tipe M: 60 Nm
+   - Tipe H: 70 Nm
+6. Periksa runout dengan dial indicator (<0.01mm)
+
+STEP 7: VERIFIKASI
+1. Putar spindle manual, pastikan smooth
+2. Periksa tool length offset (TLO)
+3. Update tool data di CNC controller
+4. Reset tool wear counter ke 0
+5. Catat di logbook maintenance
+
+STEP 8: TEST RUN
+1. Buka LOTO, nyalakan power
+2. Jalankan spindle tanpa beban (500 RPM, 1 menit)
+3. Periksa getaran dan suara
+4. Naikkan RPM bertahap hingga normal
+5. Test cutting dengan scrap material
+6. Periksa hasil cutting: surface finish, dimensi
+7. Jika OK, lanjutkan produksi
+
+5.3 PENCEGAHAN
+
+✓ Monitor tool wear time secara real-time
+✓ Ganti tool sebelum mencapai 200 menit
+✓ Gunakan tool berkualitas sesuai spesifikasi
+✓ Optimasi cutting parameter (speed, feed, depth)
+✓ Gunakan coolant yang tepat
+✓ Pelatihan operator tentang tool management
+
+=================================================================
+BAB 6: PROSEDUR PERBAIKAN HEAT DISSIPATION FAILURE (HDF)
+=================================================================
+
+6.1 IDENTIFIKASI MASALAH
+
+Gejala:
+✓ Process temperature >311K
+✓ Air temperature >302K
+✓ Temperature delta >8.6K
+✓ Rotational speed <1380 RPM
+✓ Mesin panas saat disentuh
+✓ Smell burning/overheating
+
+6.2 LANGKAH PERBAIKAN
+
+STEP 1: EMERGENCY SHUTDOWN
+⚠️ BAHAYA PANAS!
+1. Tekan Emergency Stop SEGERA
+2. JANGAN sentuh mesin (risiko luka bakar)
+3. Matikan power supply
+4. Biarkan mesin cooling down minimal 30 menit
+5. Pasang warning sign "HOT - DO NOT TOUCH"
+
+STEP 2: IDENTIFIKASI SUMBER PANAS
+Setelah dingin, periksa:
+1. Spindle bearing: sentuh dengan hati-hati
+2. Motor housing: periksa suhu
+3. Gearbox: cek temperature
+4. Hydraulic system: periksa oil temperature
+5. Electrical cabinet: cek temperature panel
+
+STEP 3: PERIKSA SISTEM PENDINGINAN
+
+A. KIPAS PENDINGIN
+1. Periksa fan motor: running atau mati?
+2. Periksa fan blade: patah, aus, kotor?
+3. Bersihkan fan blade dengan brush
+4. Periksa fan belt: kendor, putus?
+5. Ganti fan belt jika aus (>70% wear)
+6. Test fan: harus berputar smooth
+
+B. COOLANT SYSTEM
+1. Cek coolant level di reservoir
+   - Minimum level: 70%
+   - Optimal level: 90%
+2. Periksa warna coolant:
+   - Normal: hijau/biru jernih
+   - Buruk: coklat, keruh, berbusa
+3. Cek pH coolant dengan test strip (pH 8-9)
+4. Periksa coolant pump: running, pressure OK?
+5. Periksa nozzle: tersumbat chip?
+6. Bersihkan nozzle dengan compressed air
+7. Isi coolant jika kurang (gunakan coolant sesuai spec)
+
+C. HEAT SINK & RADIATOR
+1. Periksa heat sink fins: kotor, debu?
+2. Bersihkan dengan compressed air (tekanan rendah)
+3. Periksa radiator: bocor, korosi?
+4. Bersihkan radiator dengan vacuum cleaner
+5. Periksa thermal paste pada komponen elektronik
+
+STEP 4: PERIKSA VENTILASI RUANGAN
+1. Cek AC ruangan: temperature setting 22-25°C
+2. Periksa exhaust fan: running normal?
+3. Pastikan tidak ada obstruksi airflow
+4. Buka pintu/jendela untuk sirkulasi (sementara)
+5. Koordinasi dengan facility untuk improve cooling
+
+STEP 5: PERIKSA BEARING & LUBRICATION
+1. Periksa bearing spindle:
+   - Putar manual: harus smooth, no grinding
+   - Dengar suara: no clicking/rumbling
+2. Cek grease bearing:
+   - Warna: golden/light brown (normal)
+   - Tekstur: smooth, not dry/lumpy
+3. Re-lubricate bearing jika perlu:
+   - Gunakan grease sesuai spec (NLGI Grade 2)
+   - Jangan over-grease (max 70% cavity)
+4. Periksa oil level gearbox (sight glass)
+5. Top-up oil jika kurang
+
+STEP 6: PERBAIKAN & PENGGANTIAN
+
+Komponen yang perlu diganti:
+✓ Fan motor rusak → Ganti dengan spare part OEM
+✓ Coolant pump mati → Ganti pump assembly
+✓ Bearing aus → Ganti bearing set
+✓ Thermal sensor rusak → Ganti sensor
+✓ Coolant kotor → Drain & isi baru
+
+STEP 7: VERIFIKASI & TEST
+1. Isi coolant hingga level optimal
+2. Nyalakan power, test fan (harus running)
+3. Jalankan coolant pump, cek flow
+4. Monitor temperature sensor di dashboard
+5. Jalankan mesin idle (no load, 10 menit)
+6. Cek temperature:
+   - Air temp: harus <300K
+   - Process temp: harus <308K
+7. Jalankan mesin dengan beban ringan (5 menit)
+8. Monitor temperature trend (harus stabil/turun)
+9. Jika OK, lanjutkan produksi dengan monitoring ketat
+
+6.3 PENCEGAHAN
+
+✓ Scheduled cleaning fan & radiator (setiap 2 minggu)
+✓ Coolant replacement (setiap 3 bulan)
+✓ Bearing lubrication (setiap 1 bulan)
+✓ Monitor temperature real-time
+✓ Set alert threshold di sistem
+✓ Maintain room temperature 22-25°C
+✓ Pelatihan operator tentang cooling system
+
+=================================================================
+BAB 7: PROSEDUR PERBAIKAN POWER FAILURE (PWF)
+=================================================================
+
+7.1 IDENTIFIKASI MASALAH
+
+Gejala:
+✓ Mesin mati mendadak
+✓ Power output <3500W atau >9000W
+✓ Torque × RPM di luar range
+✓ Voltage fluctuation
+✓ Circuit breaker trip
+✓ Motor overload alarm
+
+7.2 LANGKAH PERBAIKAN
+
+STEP 1: SAFETY LOCKOUT
+⚠️ BAHAYA LISTRIK!
+1. Jangan restart mesin immediately
+2. Matikan main power switch
+3. Lock-out/Tag-out (LOTO)
+4. Tunggu 5 menit (capacitor discharge)
+5. Gunakan voltage tester untuk verify (0V)
+
+STEP 2: PERIKSA POWER SUPPLY
+
+A. ELECTRICAL PANEL
+1. Buka panel dengan hati-hati (gunakan insulated tools)
+2. Periksa circuit breaker:
+   - Trip? → Reset dan monitor
+   - Burnt smell? → Ganti breaker
+3. Periksa fuse:
+   - Putus? → Ganti dengan rating sama
+   - Hitam/burnt? → Investigate cause
+4. Periksa wiring:
+   - Loose connection? → Kencangkan
+   - Burnt wire? → Ganti kabel
+5. Periksa voltage dengan multimeter:
+   - L1-L2: 380-400V (3-phase)
+   - L1-N: 220-230V (1-phase)
+   - Jika voltage rendah → Hubungi electrical team
+
+B. MOTOR CONTROLLER/VFD
+1. Periksa display VFD: error code?
+2. Common error codes:
+   - OC: Overcurrent → Cek motor, reduce load
+   - OH: Overheat → Cooling fan issue
+   - UV: Undervoltage → Power supply issue
+   - OV: Overvoltage → Voltage regulator issue
+3. Reset VFD (tekan reset button 3 detik)
+4. Periksa parameter VFD:
+   - Frequency setting: sesuai spec
+   - Current limit: tidak terlalu rendah
+   - Acceleration time: tidak terlalu cepat
+
+STEP 3: PERIKSA MOTOR
+
+A. VISUAL INSPECTION
+1. Periksa motor housing: burnt marks, smell?
+2. Periksa fan motor: running saat power on?
+3. Periksa terminal box: loose, burnt?
+4. Periksa grounding: terhubung baik?
+
+B. ELECTRICAL TEST (dengan multimeter)
+1. Resistance test (motor OFF, disconnected):
+   - Phase-to-phase: harus sama (±5%)
+   - Phase-to-ground: harus >1 MΩ (infinite)
+   - Jika short to ground → Motor rusak
+2. Insulation test (dengan megger 500V):
+   - Harus >100 MΩ
+   - Jika <10 MΩ → Winding rusak
+3. Periksa bearing motor:
+   - Putar shaft manual: smooth?
+   - Dengar suara: no grinding?
+
+STEP 4: PERIKSA MECHANICAL LOAD
+
+1. Disconnect motor dari load (lepas coupling)
+2. Jalankan motor tanpa beban:
+   - Jika running OK → Problem di load
+   - Jika tetap error → Problem di motor/VFD
+3. Periksa coupling: alignment OK?
+4. Periksa gearbox: oil level, suara normal?
+5. Periksa spindle: no jam, no excessive friction?
+
+STEP 5: PERBAIKAN BERDASARKAN DIAGNOSA
+
+A. JIKA POWER SUPPLY ISSUE:
+✓ Voltage rendah → Hubungi PLN/electrical team
+✓ Phase loss → Cek wiring, ganti kabel rusak
+✓ Breaker trip → Ganti breaker, cek cause
+
+B. JIKA VFD ISSUE:
+✓ Parameter salah → Reset to default, re-configure
+✓ Cooling fan mati → Ganti fan
+✓ Capacitor bulge → Ganti capacitor bank
+✓ VFD rusak → Ganti VFD (spare part)
+
+C. JIKA MOTOR ISSUE:
+✓ Winding short → Rewind atau ganti motor
+✓ Bearing rusak → Ganti bearing
+✓ Overload → Reduce load, check process
+
+D. JIKA MECHANICAL ISSUE:
+✓ Misalignment → Realign coupling (laser alignment)
+✓ Gearbox issue → Service gearbox
+✓ Spindle jam → Bersihkan, lubricate
+
+STEP 6: COMMISSIONING & TEST
+1. Reconnect semua wiring (double check)
+2. Buka LOTO dengan prosedur
+3. Nyalakan power supply
+4. Test VFD: no error code?
+5. Jalankan motor tanpa beban (low speed)
+6. Monitor current: harus stabil, tidak spike
+7. Naikkan speed bertahap hingga rated speed
+8. Monitor vibration, temperature, suara
+9. Reconnect ke load
+10. Test dengan beban ringan
+11. Monitor power output (harus 3500-9000W)
+12. Jika OK, lanjutkan produksi
+
+7.3 PENCEGAHAN
+
+✓ Scheduled electrical inspection (setiap 3 bulan)
+✓ Thermal imaging scan (setiap 6 bulan)
+✓ VFD parameter backup
+✓ Motor bearing lubrication (setiap bulan)
+✓ Voltage monitoring system
+✓ UPS/stabilizer untuk critical equipment
+✓ Pelatihan electrical safety
+
+=================================================================
+BAB 8: PROSEDUR PERBAIKAN OVERSTRAIN FAILURE (OSF)
+=================================================================
+
+8.1 IDENTIFIKASI MASALAH
+
+Gejala:
+✓ Tool wear × Torque >11000 (L), >12000 (M), >13000 (H)
+✓ Torque spike tiba-tiba
+✓ Getaran ekstrem
+✓ Suara abnormal (grinding, knocking)
+✓ Mesin shutdown dengan overload alarm
+✓ Tool patah
+
+8.2 LANGKAH PERBAIKAN
+
+STEP 1: IMMEDIATE SHUTDOWN
+⚠️ BAHAYA MEKANIK!
+1. Emergency stop SEGERA
+2. Jangan coba restart (risiko kerusakan lebih parah)
+3. Matikan power
+4. LOTO procedure
+5. Pasang barrier "UNDER MAINTENANCE"
+
+STEP 2: DAMAGE ASSESSMENT
+
+A. PERIKSA TOOL
+1. Buka spindle cover
+2. Inspeksi tool:
+   - Patah? → Lokasi patahan?
+   - Deformasi? → Seberapa parah?
+   - Chipping? → Berapa banyak?
+3. Periksa tool holder:
+   - Retak? → Ganti
+   - Deformasi? → Ganti
+4. Foto untuk dokumentasi
+
+B. PERIKSA WORKPIECE
+1. Periksa kondisi workpiece:
+   - Rusak? → Scrap atau rework?
+   - Stuck di chuck? → Careful removal
+2. Periksa fixture/jig:
+   - Patah? → Ganti
+   - Loose? → Tighten atau ganti
+
+C. PERIKSA SPINDLE
+1. Periksa spindle taper:
+   - Goresan? → Polish atau repair
+   - Deformasi? → Spindle rebuild
+2. Putar spindle manual:
+   - Smooth? → OK
+   - Grinding/stuck? → Bearing rusak
+3. Periksa runout dengan dial indicator:
+   - <0.01mm: OK
+   - >0.02mm: Perlu service
+
+D. PERIKSA STRUKTUR MESIN
+1. Periksa bed/base: retak, deformasi?
+2. Periksa column: alignment OK?
+3. Periksa guide ways: goresan, burr?
+4. Periksa ball screw: backlash, damage?
+
+STEP 3: ROOT CAUSE ANALYSIS
+
+Kemungkinan penyebab overstrain:
+✓ Tool aus + cutting parameter terlalu agresif
+✓ Workpiece material lebih keras dari spec
+✓ Depth of cut terlalu dalam
+✓ Feed rate terlalu tinggi
+✓ Tool salah (diameter, material, geometry)
+✓ Fixture tidak kuat (workpiece shift)
+✓ Program CNC error (rapid feed saat cutting)
+✓ Operator error
+
+STEP 4: PERBAIKAN KOMPONEN
+
+A. GANTI TOOL
+1. Remove broken tool dengan hati-hati
+2. Bersihkan spindle taper
+3. Pasang tool baru (pastikan spec benar)
+4. Torque sesuai standard
+5. Verify runout
+
+B. SERVICE SPINDLE (jika perlu)
+1. Lepas spindle dari mesin
+2. Disassembly spindle
+3. Ganti bearing jika rusak
+4. Polish taper jika ada goresan minor
+5. Reassembly dengan presisi
+6. Balance spindle
+7. Test runout (<0.005mm)
+
+C. REPAIR STRUKTUR (jika ada kerusakan)
+1. Minor scratch di guide way → Polish
+2. Major damage → Hubungi service engineer
+3. Realignment jika perlu (laser alignment)
+
+STEP 5: OPTIMASI CUTTING PARAMETER
+
+Review dan adjust parameter:
+1. Depth of cut: reduce 20-30%
+2. Feed rate: reduce 15-25%
+3. Spindle speed: optimize (tidak terlalu rendah/tinggi)
+4. Coolant flow: increase untuk better cooling
+5. Tool path: optimize untuk reduce load
+
+Guideline parameter aman:
+
+TIPE L (Low Quality):
+- Max depth of cut: 2mm
+- Max feed rate: 200 mm/min
+- Max spindle speed: 2500 RPM
+- Max torque: 60 Nm
+
+TIPE M (Medium Quality):
+- Max depth of cut: 3mm
+- Max feed rate: 300 mm/min
+- Max spindle speed: 2700 RPM
+- Max torque: 65 Nm
+
+TIPE H (High Quality):
+- Max depth of cut: 4mm
+- Max feed rate: 400 mm/min
+- Max spindle speed: 2900 RPM
+- Max torque: 70 Nm
+
+STEP 6: VERIFIKASI PROGRAM CNC
+1. Review G-code program
+2. Cek rapid feed (G00): tidak boleh saat tool engaged
+3. Cek feed rate (F): sesuai material
+4. Cek spindle speed (S): sesuai tool
+5. Simulate program di CNC (dry run)
+6. Test dengan scrap material
+
+STEP 7: TEST RUN
+1. Nyalakan mesin
+2. Jalankan spindle idle (no load, 5 menit)
+3. Monitor vibration, suara, temperature
+4. Test cutting dengan parameter konservatif
+5. Monitor torque real-time (harus <60% max)
+6. Gradually increase parameter jika OK
+7. Monitor tool wear × torque (harus <threshold)
+
+8.3 PENCEGAHAN
+
+✓ Gunakan tool sesuai material workpiece
+✓ Optimize cutting parameter (jangan agresif)
+✓ Monitor tool wear secara real-time
+✓ Ganti tool sebelum terlalu aus
+✓ Pelatihan operator tentang cutting theory
+✓ Validasi program CNC sebelum produksi
+✓ Fixture/jig yang kuat dan presisi
+✓ Regular spindle maintenance
+
+=================================================================
+BAB 9: PROSEDUR PERBAIKAN RANDOM FAILURES (RNF)
+=================================================================
+
+9.1 IDENTIFIKASI MASALAH
+
+Karakteristik Random Failure:
+✓ Terjadi tiba-tiba tanpa warning
+✓ Tidak ada pola yang jelas
+✓ Probabilitas rendah (0.1%)
+✓ Bisa di komponen apapun
+✓ Sulit diprediksi
+
+Contoh Random Failures:
+- Sensor malfunction
+- Relay rusak tiba-tiba
+- Kabel putus internal
+- Connector loose
+- Software glitch
+- Component defect
+- Lightning strike damage
+- Rodent damage
+
+9.2 LANGKAH TROUBLESHOOTING
+
+STEP 1: GATHER INFORMATION
+1. Catat waktu kejadian (exact time)
+2. Catat kondisi saat failure:
+   - Apa yang sedang dikerjakan?
+   - Parameter mesin saat itu?
+   - Cuaca/lingkungan?
+3. Catat error message/alarm code
+4. Interview operator:
+   - Apa yang dilihat/didengar?
+   - Ada kejadian tidak biasa sebelumnya?
+5. Cek log system (jika ada)
+
+STEP 2: SYSTEMATIC INSPECTION
+
+A. ELECTRICAL SYSTEM
+1. Periksa semua fuse: putus?
+2. Periksa circuit breaker: trip?
+3. Periksa wiring:
+   - Visual: burnt, melted, discolored?
+   - Continuity test dengan multimeter
+4. Periksa connector:
+   - Loose? → Kencangkan
+   - Korosi? → Bersihkan atau ganti
+5. Periksa relay/contactor:
+   - Test dengan multimeter
+   - Ganti jika rusak
+
+B. SENSOR & INSTRUMENTATION
+1. Periksa semua sensor:
+   - Temperature sensor
+   - Pressure sensor
+   - Position sensor
+   - Proximity switch
+2. Test output sensor dengan multimeter
+3. Bandingkan dengan sensor lain (jika ada)
+4. Ganti sensor yang suspect
+
+C. CONTROL SYSTEM
+1. Periksa PLC/CNC controller:
+   - Power LED: nyala?
+   - Error LED: kedip?
+   - Display: normal?
+2. Restart controller (power cycle)
+3. Check I/O status
+4. Reload program dari backup
+5. Check battery backup (jika ada)
+
+D. MECHANICAL SYSTEM
+1. Periksa semua moving parts:
+   - Smooth movement?
+   - No jam/stuck?
+2. Periksa limit switch: working?
+3. Periksa pneumatic/hydraulic:
+   - Pressure OK?
+   - No leak?
+4. Periksa lubrication system:
+   - Oil flow OK?
+   - Pump running?
+
+STEP 3: ISOLATION TEST
+
+Metode eliminasi:
+1. Disconnect komponen satu per satu
+2. Test mesin setelah setiap disconnect
+3. Jika mesin OK setelah disconnect komponen X → X adalah problem
+4. Ganti komponen X
+5. Reconnect dan test
+
+STEP 4: PERBAIKAN
+
+Berdasarkan temuan:
+✓ Sensor rusak → Ganti sensor
+✓ Relay rusak → Ganti relay
+✓ Wiring issue → Repair atau ganti kabel
+✓ Connector issue → Bersihkan atau ganti
+✓ Controller issue → Reset, reload program, atau ganti
+✓ Mechanical jam → Bersihkan, lubricate
+✓ Software glitch → Restart, update firmware
+
+STEP 5: VERIFIKASI
+1. Test komponen yang diganti (bench test)
+2. Install komponen baru
+3. Test mesin secara bertahap
+4. Monitor selama 24 jam (jika memungkinkan)
+5. Dokumentasi perbaikan
+
+9.3 PENCEGAHAN
+
+✓ Scheduled preventive maintenance
+✓ Component life tracking
+✓ Spare part inventory
+✓ Environmental control (temperature, humidity)
+✓ Rodent/pest control
+✓ Lightning protection
+✓ Backup critical components
+✓ Regular inspection checklist
+✓ Operator training (early detection)
+
+=================================================================
+BAB 10: PERAWATAN PREVENTIF
+=================================================================
+
+10.1 JADWAL PERAWATAN HARIAN
+
+Dilakukan oleh: Operator
+Waktu: Sebelum shift dimulai
+
+Checklist:
+□ Visual inspection mesin (kebersihan, kebocoran)
+□ Cek coolant level (top-up jika perlu)
+□ Cek oil level gearbox/hydraulic
+□ Cek compressed air pressure (6-8 bar)
+□ Bersihkan chip dari area kerja
+□ Cek emergency stop button (test)
+□ Cek safety guard (terpasang dengan baik)
+□ Warm-up mesin (idle 5 menit)
+□ Catat di logbook harian
+
+10.2 JADWAL PERAWATAN MINGGUAN
+
+Dilakukan oleh: Operator/Technician
+Waktu: Akhir minggu
+
+Checklist:
+□ Bersihkan mesin menyeluruh (exterior & interior)
+□ Bersihkan coolant tank (remove chip)
+□ Bersihkan filter coolant
+□ Lubricate guide ways (grease gun)
+□ Cek belt tension (fan, spindle)
+□ Cek tool magazine (jika ada): smooth operation
+□ Cek ATC (Automatic Tool Changer): alignment OK
+□ Backup program CNC
+□ Catat tool usage time
+□ Update maintenance log
+
+10.3 JADWAL PERAWATAN BULANAN
+
+Dilakukan oleh: Maintenance Technician
+Waktu: Scheduled downtime
+
+TIPE L (Low Quality): Setiap 2 minggu
+TIPE M (Medium Quality): Setiap 1 bulan
+TIPE H (High Quality): Setiap 2 bulan
+
+Checklist:
+□ Ganti coolant (drain, flush, refill)
+□ Ganti filter coolant
+□ Ganti filter udara (jika ada)
+□ Lubricate bearing spindle
+□ Lubricate ball screw
+□ Cek backlash ball screw (<0.02mm)
+□ Cek level accuracy (laser interferometer)
+□ Cek alignment (laser alignment)
+□ Tighten semua bolt/nut (torque check)
+□ Cek electrical connection (thermal scan)
+□ Test safety system (emergency stop, interlock)
+□ Calibrate sensor (temperature, pressure)
+□ Update firmware (jika ada update)
+□ Full function test
+□ Dokumentasi lengkap
+
+10.4 JADWAL PERAWATAN TAHUNAN
+
+Dilakukan oleh: Service Engineer
+Waktu: Annual shutdown
+
+Checklist:
+□ Major overhaul spindle
+□ Ganti bearing spindle
+□ Ganti seal spindle
+□ Service gearbox (drain oil, inspect gear, refill)
+□ Service hydraulic system
+□ Service pneumatic system
+□ Ganti filter semua system
+□ Repaint mesin (jika perlu)
+□ Upgrade software/firmware
+□ Recalibrate mesin (full axis)
+□ Geometric accuracy test (ISO 230)
+□ Performance test (cutting test)
+□ Update spare part inventory
+□ Training refresher untuk operator
+
+=================================================================
+BAB 11: KESELAMATAN KERJA
+=================================================================
+
+11.1 ALAT PELINDUNG DIRI (APD) WAJIB
+
+Saat bekerja di area mesin:
+✓ Safety helmet (jika overhead crane)
+✓ Safety glasses (anti-impact, anti-splash)
+✓ Ear protection (jika noise >85 dB)
+✓ Safety shoes (steel toe cap)
+✓ Work gloves (saat handling tool/material)
+✓ Coverall/work uniform (no loose clothing)
+
+Saat maintenance:
+✓ Insulated gloves (electrical work)
+✓ Heat-resistant gloves (hot component)
+✓ Face shield (grinding, welding)
+✓ Respirator (chemical, dust)
+
+11.2 PROSEDUR LOCK-OUT/TAG-OUT (LOTO)
+
+WAJIB dilakukan sebelum maintenance!
+
+Langkah LOTO:
+1. Announce ke semua personel (maintenance akan dilakukan)
+2. Shutdown mesin dengan prosedur normal
+3. Matikan main power switch
+4. Pasang lock di power switch (personal lock)
+5. Pasang tag "UNDER MAINTENANCE - DO NOT OPERATE"
+6. Tulis nama, tanggal, waktu di tag
+7. Test mesin (pastikan tidak bisa start)
+8. Discharge stored energy:
+   - Pneumatic: bleed air
+   - Hydraulic: release pressure
+   - Electrical: discharge capacitor
+9. Mulai maintenance
+
+Setelah maintenance:
+1. Pastikan semua tool/equipment sudah dikeluarkan
+2. Pastikan safety guard terpasang
+3. Remove personal lock
+4. Remove tag
+5. Announce "Maintenance complete, ready to operate"
+6. Nyalakan power dengan prosedur
+
+11.3 PROSEDUR EMERGENCY
+
+Jika terjadi kecelakaan:
+1. STOP mesin SEGERA (emergency stop)
+2. Matikan power
+3. Hubungi emergency (ext. 911)
+4. Berikan first aid (jika trained)
+5. Jangan pindahkan korban (kecuali bahaya lebih besar)
+6. Amankan area (barrier, warning sign)
+7. Laporkan ke supervisor
+8. Dokumentasi kejadian
+9. Investigasi root cause
+10. Implement corrective action
+
+Emergency Contact:
+- Medical Emergency: ext. 911
+- Fire: ext. 912
+- Security: ext. 913
+- Maintenance Supervisor: ext. 2345
+- Safety Officer: ext. 2346
+
+11.4 SAFE OPERATING PROCEDURE
+
+DO's:
+✓ Gunakan APD lengkap
+✓ Ikuti SOP yang berlaku
+✓ Laporkan kondisi tidak aman
+✓ Keep area kerja bersih
+✓ Gunakan tool yang tepat
+✓ Pastikan safety guard terpasang
+✓ Stop mesin sebelum adjustment
+✓ Pelatihan sebelum operate mesin baru
+
+DON'Ts:
+✗ Operate mesin tanpa training
+✗ Bypass safety system
+✗ Lepas safety guard saat running
+✗ Masukkan tangan saat mesin running
+✗ Gunakan compressed air untuk bersihkan badan
+✗ Operate mesin dalam kondisi tidak fit
+✗ Bercanda di area mesin
+✗ Gunakan handphone saat operate mesin
+
+=================================================================
+BAB 12: TROUBLESHOOTING GUIDE
+=================================================================
+
+12.1 QUICK REFERENCE GUIDE
+
+PROBLEM: Mesin tidak mau start
+POSSIBLE CAUSE:
+□ Power supply OFF → Cek main switch
+□ Emergency stop active → Reset emergency stop
+□ Safety interlock open → Tutup safety door
+□ Fuse putus → Ganti fuse
+□ Overload trip → Reset breaker, cek cause
+
+PROBLEM: Spindle tidak mau rotate
+POSSIBLE CAUSE:
+□ VFD error → Cek error code, reset
+□ Motor overload → Reduce load
+□ Bearing seized → Ganti bearing
+□ Belt putus → Ganti belt
+□ Coupling rusak → Ganti coupling
+
+PROBLEM: Coolant tidak keluar
+POSSIBLE CAUSE:
+□ Coolant level rendah → Isi coolant
+□ Pump mati → Cek power pump, ganti jika rusak
+□ Nozzle tersumbat → Bersihkan nozzle
+□ Filter tersumbat → Ganti filter
+□ Valve tertutup → Buka valve
+
+PROBLEM: Getaran berlebih
+POSSIBLE CAUSE:
+□ Tool tidak balance → Ganti tool
+□ Spindle runout tinggi → Service spindle
+□ Bearing aus → Ganti bearing
+□ Foundation tidak kuat → Reinforce foundation
+□ Cutting parameter terlalu agresif → Reduce parameter
+
+PROBLEM: Hasil cutting tidak presisi
+POSSIBLE CAUSE:
+□ Tool aus → Ganti tool
+□ Backlash ball screw → Adjust atau ganti
+□ Thermal expansion → Warm-up lebih lama
+□ Fixture tidak kuat → Tighten atau ganti fixture
+□ Program CNC salah → Koreksi program
+
+PROBLEM: Overheating
+POSSIBLE CAUSE:
+□ Coolant tidak cukup → Isi coolant
+□ Fan tidak jalan → Ganti fan motor
+□ Bearing aus → Ganti bearing
+□ Overload → Reduce load
+□ Room temperature tinggi → Improve AC
+
+12.2 ERROR CODE REFERENCE
+
+E001: Emergency Stop Active
+→ Reset emergency stop button
+
+E002: Safety Door Open
+→ Tutup safety door dengan benar
+
+E003: Spindle Overload
+→ Reduce cutting load, cek tool condition
+
+E004: Servo Motor Error
+→ Cek wiring, reset servo drive
+
+E005: Low Coolant Level
+→ Isi coolant hingga level normal
+
+E006: High Temperature
+→ Cek cooling system, reduce load
+
+E007: Tool Magazine Error
+→ Cek tool magazine, manual reset
+
+E008: ATC (Auto Tool Change) Error
+→ Cek tool holder, clean taper
+
+E009: Hydraulic Pressure Low
+→ Cek hydraulic pump, oil level
+
+E010: Pneumatic Pressure Low
+→ Cek air compressor, cek leak
+
+E011: Battery Low (Controller)
+→ Ganti battery backup
+
+E012: Program Error
+→ Reload program dari backup
+
+E013: Limit Switch Triggered
+→ Manual jog keluar dari limit, cek cause
+
+E014: Encoder Error
+→ Cek encoder wiring, ganti jika rusak
+
+E015: Communication Error
+→ Cek network cable, restart controller
+
+=================================================================
+LAMPIRAN
+=================================================================
+
+LAMPIRAN A: PARAMETER REFERENCE TABLE
+
+MACHINE TYPE L (Low Quality):
+- Max Air Temp: 304K
+- Max Process Temp: 313K
+- Max Rotational Speed: 2500 RPM
+- Max Torque: 60 Nm
+- Max Tool Wear: 200 min
+- Max Power: 9000W
+- Overstrain Threshold: 11000 Nm·min
+
+MACHINE TYPE M (Medium Quality):
+- Max Air Temp: 304K
+- Max Process Temp: 313K
+- Max Rotational Speed: 2700 RPM
+- Max Torque: 65 Nm
+- Max Tool Wear: 210 min
+- Max Power: 9000W
+- Overstrain Threshold: 12000 Nm·min
+
+MACHINE TYPE H (High Quality):
+- Max Air Temp: 304K
+- Max Process Temp: 313K
+- Max Rotational Speed: 2900 RPM
+- Max Torque: 70 Nm
+- Max Tool Wear: 220 min
+- Max Power: 9000W
+- Overstrain Threshold: 13000 Nm·min
+
+LAMPIRAN B: MAINTENANCE CHECKLIST FORM
+
+[Form tersedia di sistem maintenance management]
+
+LAMPIRAN C: SPARE PART LIST
+
+Critical Spare Parts (wajib stock):
+- Tool holder set
+- Cutting tool assortment
+- Spindle bearing set
+- Motor bearing set
+- V-belt set
+- Fuse set
+- Relay/contactor
+- Sensor (temperature, proximity)
+- Coolant pump
+- Fan motor
+- Filter (coolant, air, oil)
+
+LAMPIRAN D: CONTACT LIST
+
+Maintenance Team:
+- Supervisor: ext. 2345
+- Electrical Technician: ext. 2347
+- Mechanical Technician: ext. 2348
+- On-call Engineer: +62-xxx-xxxx
+
+Vendor Support:
+- Machine Manufacturer: +62-xxx-xxxx
+- Tool Supplier: +62-xxx-xxxx
+- Spare Part Supplier: +62-xxx-xxxx
+
+=================================================================
+REVISI DOKUMEN
+=================================================================
+
+Versi 1.0 (1 Januari 2024)
+- Initial release
+
+Versi 2.0 (3 Desember 2024)
+- Tambah detail failure modes
+- Update prosedur perbaikan
+- Tambah troubleshooting guide
+- Tambah safety procedure
+- Tambah preventive maintenance schedule
+
+=================================================================
+APPROVAL
+=================================================================
+
+Dibuat oleh:
+Nama: Engineering Team
+Jabatan: Maintenance Engineer
+Tanggal: 3 Desember 2024
+
+Disetujui oleh:
+Nama: [Maintenance Manager]
+Jabatan: Maintenance Manager
+Tanggal: [Tanggal Approval]
+
+Nama: [Plant Manager]
+Jabatan: Plant Manager
+Tanggal: [Tanggal Approval]
+
+=================================================================
+END OF DOCUMENT
+=================================================================

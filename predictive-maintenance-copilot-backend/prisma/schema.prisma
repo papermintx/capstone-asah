@@ -1,0 +1,229 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Enums
+enum MachineType {
+  L   // Low
+  M   // Medium
+  H   // High
+
+  @@map("machine_type")
+}
+
+enum MachineStatus {
+  operational
+  maintenance
+  offline
+  retired
+
+  @@map("machine_status")
+}
+
+enum MessageRole {
+  user
+  assistant
+
+  @@map("message_role")
+}
+
+enum UserRole {
+  admin
+  operator
+  viewer
+  technician
+
+  @@map("user_role")
+}
+
+enum MaintenanceStatus {
+  open
+  in_progress
+  closed
+  canceled
+
+  @@map("maintenance_status")
+}
+
+enum DocumentType {
+  sop
+  manual
+  datasheet
+  safety
+  maintenance_record
+
+  @@map("document_type")
+}
+
+
+model User {
+  id            String         @id @db.Uuid @default(dbgenerated("gen_random_uuid()"))
+  email         String         @unique
+  fullName      String?        @map("full_name")
+  role          UserRole       @default(operator)
+  isActive      Boolean        @default(true) @map("is_active")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  chatMessages  ChatMessage[]
+  maintenanceTickets MaintenanceTicket[]
+  documents     Document[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Machine {
+  id                  String         @id @db.Uuid @default(dbgenerated("gen_random_uuid()"))
+  productId           String         @unique @map("product_id")
+  type                MachineType
+  name                String?
+  description         String?
+  location            String?
+  installationDate    DateTime?      @map("installation_date")
+  lastMaintenanceDate DateTime?      @map("last_maintenance_date")
+  status              MachineStatus  @default(operational)
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+  
+  // Relations
+  sensorReadings      SensorData[]
+  predictions         PredictionResult[]
+  maintenanceTickets  MaintenanceTicket[]
+
+  @@index([productId])
+  @@index([status])
+  @@index([type])
+  @@map("machines")
+}
+
+model MaintenanceTicket {
+  id          String            @id @db.Uuid @default(dbgenerated("gen_random_uuid()"))
+  machineId   String            @db.Uuid @map("machine_id")
+  requestedById String          @db.Uuid @map("requested_by_id")
+  description String
+  status      MaintenanceStatus @default(open)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  machine     Machine           @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  requestedBy User              @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+
+  @@index([machineId])
+  @@index([requestedById])
+  @@index([status])
+  @@map("maintenance_tickets")
+}
+
+model SensorData {
+  udi             Int      @id @default(autoincrement())
+  machineId       String   @db.Uuid @map("machine_id")
+  productId       String?  @map("product_id")
+  timestamp       DateTime @default(now())
+  airTemp         Float    @map("air_temp")
+  processTemp     Float    @map("process_temp")
+  rotationalSpeed Int      @map("rotational_speed")
+  torque          Float
+  toolWear        Int      @map("tool_wear")
+  createdAt       DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  machine         Machine  @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([machineId, timestamp])
+  @@index([timestamp])
+  @@map("sensor_readings")
+}
+
+model PredictionResult {
+  id                    String    @id @db.Uuid @default(dbgenerated("gen_random_uuid()"))
+  machineId             String    @db.Uuid @map("machine_id")
+  timestamp             DateTime  @default(now())
+  riskScore             Float     @map("risk_score")              // 0-1 (0 = no risk, 1 = high risk)
+  failurePredicted      Boolean   @map("failure_predicted")
+  failureType           String?   @map("failure_type")            // "Heat Dissipation", "Power Failure", "Overstrain", "Tool Wear", "Random Failures"
+  anomalyDetected       Boolean   @default(false) @map("anomaly_detected")
+  predictedFailureTime  DateTime? @map("predicted_failure_time")  // Estimasi waktu failure
+  confidence            Float?                                    // ML model confidence (0-1)
+  createdAt             DateTime  @default(now()) @map("created_at")
+  
+  // Relations
+  machine               Machine   @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([machineId, timestamp])
+  @@index([timestamp])
+  @@index([failurePredicted])
+  @@index([riskScore])
+  @@map("prediction_results")
+}
+
+model ChatMessage {
+  id             String       @id @db.Uuid @default(dbgenerated("gen_random_uuid()"))
+  userId         String       @db.Uuid @map("user_id")
+  role           MessageRole
+  content        String       @db.Text
+  createdAt      DateTime     @default(now()) @map("created_at")
+  
+  // Relations
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+
+model Document {
+  id           String       @id @db.Uuid @default(dbgenerated("gen_random_uuid()"))
+  filename     String       // Stored filename in Supabase Storage
+  originalName String       @map("original_name") // Original uploaded filename
+  type         DocumentType
+  language     String       @default("id") // "id" or "en"
+  uploadedBy   String       @db.Uuid @map("uploaded_by")
+  fileSize     Int          @map("file_size") // in bytes
+  pageCount    Int?         @map("page_count")
+  metadata     Json?        // Additional metadata (author, version, machine_type, etc.)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  chunks       DocumentChunk[]
+  uploader     User         @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+  
+  @@index([type])
+  @@index([uploadedBy])
+  @@index([createdAt])
+  @@map("documents")
+}
+
+model DocumentChunk {
+  id          String   @id @db.Uuid @default(dbgenerated("gen_random_uuid()"))
+  documentId  String   @db.Uuid @map("document_id")
+  content     String   @db.Text
+  pageNumber  Int?     @map("page_number")
+  chunkIndex  Int      @map("chunk_index") // Order of chunk in document
+  embedding   Unsupported("vector(768)")?  // pgvector type for embeddings
+  metadata    Json?    // Additional chunk metadata (section_title, etc.)
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  @@index([documentId])
+  @@index([documentId, chunkIndex])
+  @@map("document_chunks")
+}
+
